@@ -44,6 +44,8 @@ services:
     image: postgrestoauth/ui:latest
     build: ../ui
     ports:
-      - "3685:80"
+      - "3685:3685"
     environment:
-      POSTGREST_OAUTH_API_URI: ${POSTGREST_OAUTH_API_URI}
+      REACT_APP_OAUTH_URL: ${REACT_APP_OAUTH_URL}
+      REACT_APP_FACEBOOK_PIXEL: ${REACT_APP_FACEBOOK_PIXEL}
+      REACT_APP_PRIVACY_POLICY: ${REACT_APP_PRIVACY_POLICY}
