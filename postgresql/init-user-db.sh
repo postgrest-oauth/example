@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS
       email               text DEFAULT NULL UNIQUE CHECK ( email ~* '^.+@.+\..+$' ),
       phone               text DEFAULT NULL UNIQUE,
       password            text NOT NULL DEFAULT md5(random()::text) CHECK (length(password) < 512),
-      role                varchar NOT NULL DEFAULT 'member',
+      role                varchar NOT NULL DEFAULT 'unverified',
       jti                 timestamp without time zone NOT NULL DEFAULT now(),
       CHECK(email IS NOT NULL OR phone IS NOT NULL)
     );
@@ -23,6 +23,11 @@ CREATE TABLE IF NOT EXISTS
 CREATE OR REPLACE FUNCTION oauth2.create_owner(email text, phone text, password text, verification_code text, verification_route text, OUT id varchar)
 AS \$\$
         INSERT INTO oauth2.owners(email, phone, password) VALUES (NULLIF(email, ''), NULLIF(phone, ''), crypt(password, gen_salt('bf'))) RETURNING id::varchar;
+\$\$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION oauth2.re_verify(username text, verification_code text, verification_route text, OUT id varchar)
+AS \$\$
+        SELECT id::varchar FROM oauth2.owners WHERE role = 'unverified' AND (email = username OR phone = username) LIMIT 1;
 \$\$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION oauth2.check_owner(username text, password text, OUT id varchar, OUT role varchar, OUT jti varchar)
@@ -105,10 +110,10 @@ CREATE ROLE authenticator NOINHERIT LOGIN PASSWORD '$PGRST_AUTHENTICATOR_PASSWOR
 CREATE ROLE "guest" NOLOGIN;
 GRANT "guest" TO "authenticator";
 
-CREATE ROLE "member" NOLOGIN;
-GRANT "member" TO "authenticator";
-GRANT USAGE ON SCHEMA api TO "member";
-GRANT SELECT ON TABLE api.me TO "member";
+CREATE ROLE "unverified" NOLOGIN;
+GRANT "unverified" TO "authenticator";
+GRANT USAGE ON SCHEMA api TO "unverified";
+GRANT SELECT ON TABLE api.me TO "unverified";
 
 CREATE ROLE "msrv-worker" NOLOGIN;
 GRANT "msrv-worker" TO "authenticator";

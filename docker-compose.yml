@@ -12,7 +12,7 @@ services:
       PGRST_DB_SCHEMA: api
       PGRST_DB_ANON_ROLE: guest
       PGRST_SERVER_PROXY_URI: ${PGRST_SERVER_PROXY_URI} # More info: https://github.com/begriffs/postgrest/issues/983
-      PGRST_JWT_SECRET: ${OAUTH_ACCESS_TOKEN_JWT_SECRET}
+      PGRST_JWT_SECRET: ${OAUTH_ACCESS_TOKEN_SECRET}
 
   postgresql:
     build: ./postgresql
