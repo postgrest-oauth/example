@@ -16,13 +16,14 @@ CREATE TABLE IF NOT EXISTS
       phone               text DEFAULT NULL UNIQUE,
       password            text NOT NULL DEFAULT md5(random()::text) CHECK (length(password) < 512),
       role                varchar NOT NULL DEFAULT 'unverified',
+      language            varchar NULL,
       jti                 timestamp without time zone NOT NULL DEFAULT now(),
       CHECK(email IS NOT NULL OR phone IS NOT NULL)
     );
 
-CREATE OR REPLACE FUNCTION oauth2.create_owner(email text, phone text, password text, verification_code text, verification_route text, OUT id varchar)
+CREATE OR REPLACE FUNCTION oauth2.create_owner(email text, phone text, password text, language text, verification_code text, verification_route text, OUT id varchar)
 AS \$\$
-        INSERT INTO oauth2.owners(email, phone, password) VALUES (NULLIF(email, ''), NULLIF(phone, ''), crypt(password, gen_salt('bf'))) RETURNING id::varchar;
+        INSERT INTO oauth2.owners(email, phone, password, language) VALUES (NULLIF(email, ''), NULLIF(phone, ''), crypt(password, gen_salt('bf')), NULLIF(language, '')) RETURNING id::varchar;
 \$\$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION oauth2.re_verify(username text, verification_code text, verification_route text, OUT id varchar)
