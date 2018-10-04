@@ -12,17 +12,37 @@ CREATE SCHEMA IF NOT EXISTS oauth2;
 CREATE TABLE IF NOT EXISTS
     oauth2.owners (
       id                  serial PRIMARY KEY NOT NULL,
+      facebook_id         varchar DEFAULT NULL,
       email               text DEFAULT NULL UNIQUE CHECK ( email ~* '^.+@.+\..+$' ),
       phone               text DEFAULT NULL UNIQUE,
       password            text NOT NULL DEFAULT md5(random()::text) CHECK (length(password) < 512),
       role                varchar NOT NULL DEFAULT 'unverified',
       jti                 timestamp without time zone NOT NULL DEFAULT now(),
+      lang                varchar DEFAULT NULL
       CHECK(email IS NOT NULL OR phone IS NOT NULL)
     );
 
 CREATE OR REPLACE FUNCTION oauth2.create_owner(email text, phone text, password text, verification_code text, verification_route text, OUT id varchar)
 AS \$\$
         INSERT INTO oauth2.owners(email, phone, password) VALUES (NULLIF(email, ''), NULLIF(phone, ''), crypt(password, gen_salt('bf'))) RETURNING id::varchar;
+\$\$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION oauth2.create_or_update_facebook_owner(obj json, phone varchar, lang varchar, OUT id varchar, OUT role varchar, OUT jti varchar)
+AS \$\$
+        INSERT INTO oauth2.owners(email, phone, role, facebook_id, lang)
+        VALUES
+         (
+         obj->'email'::varchar,
+         phone,
+         'verified',
+         obj->'id'::varchar,
+         lang
+         )
+        ON CONFLICT (email)
+        DO
+         UPDATE
+           SET role = 'verified'
+        RETURNING id::varchar, role::varchar, jti::varchar;
 \$\$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION oauth2.re_verify(username text, verification_code text, verification_route text, OUT id varchar)
@@ -35,6 +55,12 @@ AS \$\$
 SELECT id::varchar, role::varchar, jti::varchar FROM oauth2.owners
     WHERE (email = check_owner.username OR phone = check_owner.username)
         AND owners.password = crypt(check_owner.password, owners.password);
+\$\$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION oauth2.check_owner_facebook(facebook_id varchar, OUT id varchar, OUT role varchar, OUT jti varchar)
+AS \$\$
+SELECT id::varchar, role::varchar, jti::varchar FROM oauth2.owners
+    WHERE facebook_id = check_owner_facebook.facebook_id;
 \$\$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION oauth2.owner_role_and_jti_by_id(id text, OUT role varchar, OUT jti varchar)

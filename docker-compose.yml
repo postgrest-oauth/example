@@ -26,8 +26,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
   oauth-api:
-    image: postgrestoauth/api:latest
-    build: ../api
+    image: postgrestoauth/api:facebook-login
+    #build: ../api
     ports:
       - "3684:3684"
     environment:
@@ -39,6 +39,8 @@ services:
       OAUTH_COOKIE_BLOCK_KEY: ${OAUTH_COOKIE_BLOCK_KEY}
       OAUTH_VALIDATE_REDIRECT_URI: ${OAUTH_VALIDATE_REDIRECT_URI}
       OAUTH_CODE_UI: ${OAUTH_CODE_UI}
+      OAUTH_FACEBOOK_CLIENT_ID: ${OAUTH_FACEBOOK_CLIENT_ID}
+      OAUTH_FACEBOOK_CLIENT_SECRET: ${OAUTH_FACEBOOK_CLIENT_SECRET}
 
   oauth-ui:
     image: postgrestoauth/ui:latest
