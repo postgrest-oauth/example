@@ -32,10 +32,10 @@ AS \$\$
         INSERT INTO oauth2.owners(email, phone, role, facebook_id, lang)
         VALUES
          (
-         obj->'email'::varchar,
+         obj->>'email'::varchar,
          phone,
          'verified',
-         obj->'id'::varchar,
+         obj->>'id'::varchar,
          lang
          )
         ON CONFLICT (email)
