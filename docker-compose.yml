@@ -1,4 +1,4 @@
-version: "2.1"
+version: "3.7"
 services:
   postgrest:
     image: postgrest/postgrest:v6.0.2
@@ -42,7 +42,7 @@ services:
       OAUTH_FACEBOOK_CLIENT_SECRET: ${OAUTH_FACEBOOK_CLIENT_SECRET}
 
   oauth-ui:
-    image: postgrestoauth/ui:latest
+    image: postgrestoauth/ui:v0.3
     build: ../ui
     ports:
       - "3685:3685"
