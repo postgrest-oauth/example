@@ -1,8 +1,7 @@
-version: "2.1"
+version: "3.7"
 services:
-
   postgrest:
-    image: postgrest/postgrest:v0.4.3.0
+    image: postgrest/postgrest:v6.0.2
     ports:
       - "3000:3000"
     depends_on:
@@ -26,7 +25,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
   oauth-api:
-    image: postgrestoauth/api:add-language
+    image: postgrestoauth/api:v0.4
     build: ../api
     ports:
       - "3684:3684"
@@ -43,7 +42,7 @@ services:
       OAUTH_FACEBOOK_CLIENT_SECRET: ${OAUTH_FACEBOOK_CLIENT_SECRET}
 
   oauth-ui:
-    image: postgrestoauth/ui:latest
+    image: postgrestoauth/ui:v0.3
     build: ../ui
     ports:
       - "3685:3685"
