@@ -8,21 +8,16 @@ AS $$
 $$ LANGUAGE SQL;
 
 
-CREATE OR REPLACE FUNCTION oauth2.create_or_update_facebook_owner(obj json, phone varchar, lang varchar, OUT id varchar, OUT role varchar, OUT jti varchar)
+CREATE OR REPLACE FUNCTION oauth2.create_facebook_owner(obj json, phone varchar, OUT id varchar, OUT role varchar, OUT jti varchar)
 AS $$
-        INSERT INTO api.users(email, phone, role, facebook_id, language)
+        INSERT INTO api.users(email, phone, role, facebook_id)
         VALUES
          (
          obj->>'email'::varchar,
          phone,
          'verified',
-         obj->>'id'::varchar,
-         lang
+         obj->>'id'::varchar
          )
-        ON CONFLICT (email)
-        DO
-         UPDATE
-           SET role = 'verified'
         RETURNING id::varchar, role::varchar, jti::varchar;
 $$ LANGUAGE SQL;
 
