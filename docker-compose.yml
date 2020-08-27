@@ -25,7 +25,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
   oauth-api:
-    image: postgrestoauth/api:v0.4
+    image: postgrestoauth/api:v0.7
     build: ../api
     ports:
       - "3684:3684"
